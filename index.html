@@ -73,9 +73,9 @@
         display: grid;
         grid-template-columns: 1.05fr 1fr;
         grid-template-rows: 1fr auto;
-        gap: 0 4vw;
-        padding: max(3.5vh, env(safe-area-inset-top)) max(4vw, env(safe-area-inset-right)) max(2vh, env(safe-area-inset-bottom)) max(4vw, env(safe-area-inset-left));
-        max-width: 1400px;
+        gap: 0 3vw;
+        padding: max(2.5vh, env(safe-area-inset-top)) max(3.5vw, env(safe-area-inset-right)) max(1.5vh, env(safe-area-inset-bottom)) max(3.5vw, env(safe-area-inset-left));
+        max-width: 110rem;
         margin: 0 auto;
       }
 
@@ -83,43 +83,43 @@
       .left {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: space-evenly;
         min-height: 0;
         padding: 1vh 0 1vh 1vw;
       }
       .dow-month {
-        font-size: clamp(1.4rem, 4.2vw, 2.6rem);
+        font-size: min(5.2vh, 3.8vw);
         font-weight: 700;
         letter-spacing: 0.01em;
         color: var(--ink-soft);
         line-height: 1;
       }
       .daynum {
-        font-size: clamp(5.5rem, 19vw, 13.5rem);
+        font-size: min(28vh, 20vw);
         font-weight: 900;
         line-height: 0.95;
         letter-spacing: -0.02em;
         margin-top: 0.5vh;
       }
       .cal-month {
-        font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+        font-size: min(2.5vh, 1.8vw);
         font-weight: 700;
         letter-spacing: 0.32em;
         text-transform: uppercase;
         color: var(--ink-soft);
-        margin-bottom: 0.8vh;
+        margin-bottom: 1.2vh;
       }
       .cal {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        max-width: 30rem;
+        max-width: 40rem;
         row-gap: 0.3em;
       }
       .cal span {
-        font-size: clamp(0.72rem, 1.9vw, 1.05rem);
+        font-size: min(3.4vh, 2.4vw);
         font-weight: 600;
-        width: 2em;
-        height: 2em;
+        width: 2.05em;
+        height: 2.05em;
         justify-self: center;
         display: flex;
         align-items: center;
@@ -139,7 +139,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-evenly;
         min-height: 0;
         padding: 1vh 0;
       }
@@ -158,19 +158,19 @@
         white-space: nowrap;
       }
       .d-time {
-        font-size: clamp(4.6rem, 12vw, 9.5rem);
+        font-size: min(27vh, 13.5vw);
         font-weight: 900;
         letter-spacing: -0.03em;
         color: var(--ink);
       }
       .d-sec {
-        font-size: clamp(1.9rem, 5vw, 3.8rem);
+        font-size: min(10.5vh, 5.2vw);
         font-weight: 800;
         color: var(--ink-soft);
         letter-spacing: -0.01em;
       }
       .d-ampm {
-        font-size: clamp(1.3rem, 3.4vw, 2.6rem);
+        font-size: min(7vh, 3.6vw);
         font-weight: 800;
         color: var(--ink-soft);
         letter-spacing: 0.06em;
@@ -183,7 +183,7 @@
         text-align: left;
       }
       .wx-place {
-        font-size: clamp(0.95rem, 2.4vw, 1.35rem);
+        font-size: min(3.8vh, 2.7vw);
         font-weight: 700;
         color: var(--ink-soft);
         display: flex;
@@ -192,7 +192,7 @@
       }
       .wx-place svg { width: 0.72em; height: 0.72em; fill: var(--ink-soft); flex: none; }
       .wx-temp {
-        font-size: clamp(3.4rem, 10vw, 6.5rem);
+        font-size: min(20vh, 12vw);
         font-weight: 900;
         line-height: 1.02;
         letter-spacing: -0.02em;
@@ -201,18 +201,18 @@
         display: flex;
         align-items: center;
         gap: 0.45em;
-        font-size: clamp(1rem, 2.6vw, 1.5rem);
+        font-size: min(4vh, 2.9vw);
         font-weight: 700;
       }
       .wx-cond svg { width: 1.25em; height: 1.25em; flex: none; }
       .wx-hl {
-        font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+        font-size: min(3.4vh, 2.4vw);
         font-weight: 600;
         color: var(--ink-soft);
         margin-top: 0.15em;
       }
       .wx-note {
-        font-size: 0.78rem;
+        font-size: clamp(0.72rem, 2vh, 0.95rem);
         font-weight: 500;
         color: var(--ink-faint);
         margin-top: 0.5em;
@@ -234,9 +234,9 @@
         border-radius: 999px;
         background: var(--btn-bg);
         color: var(--ink);
-        font-size: 0.82rem;
+        font-size: 0.92rem;
         font-weight: 600;
-        padding: 0.55rem 1.05rem;
+        padding: 0.6rem 1.15rem;
         cursor: pointer;
       }
       .controls button[aria-pressed="true"] {
@@ -245,8 +245,12 @@
       }
       .controls button:active { transform: scale(0.97); }
 
-      /* ---------- Portrait: single stack sized in vh so date, clock,
-         weather, calendar and controls all fit one screen ---------- */
+      /* ---------- Portrait: single stack. Each block gets a proportional
+         zone of the screen height and centres its content inside it, so
+         date, clock, weather and calendar together fill the whole screen
+         instead of bunching at the top with a blank band above the
+         buttons — worst on the tall, narrow outer cover screen. Type is
+         also scaled up in vh so the blocks themselves are bigger. ------ */
       @media (orientation: portrait) {
         .stage {
           display: flex;
@@ -255,32 +259,60 @@
           padding: max(2vh, env(safe-area-inset-top)) max(4vw, env(safe-area-inset-right)) max(1.5vh, env(safe-area-inset-bottom)) max(4vw, env(safe-area-inset-left));
         }
         .left, .right { display: contents; }
-        .date-block { order: 1; text-align: center; }
-        .dow-month { font-size: 2.9vh; }
-        .daynum { font-size: 8.8vh; margin-top: 0.3vh; }
-        .clock-block { order: 2; align-self: center; margin-top: 0.8vh; }
-        .digital { margin-top: 0.4vh; }
-        .d-time { font-size: 12vh; }
-        .d-sec { font-size: 5vh; }
-        .d-ampm { font-size: 3.4vh; }
-        .weather { order: 3; align-self: center; margin-left: 0; text-align: center; margin-top: 0.6vh; }
+        .date-block {
+          order: 1; flex: 1;
+          display: flex; flex-direction: column; justify-content: center;
+          text-align: center;
+        }
+        .dow-month { font-size: 3.4vh; }
+        .daynum { font-size: 11vh; margin-top: 0.3vh; }
+        .clock-block {
+          order: 2; flex: 1.05; align-self: stretch;
+          justify-content: center;
+          container-type: inline-size;
+        }
+        .digital { margin-top: 0; }
+        /* cqw cap: the time line can never outgrow the block width, even
+           with a two-digit hour on the narrow outer screen. */
+        .d-time { font-size: min(15.5vh, 33cqw); }
+        .d-sec { font-size: min(6vh, 13cqw); }
+        .d-ampm { font-size: min(4.2vh, 9cqw); }
+        .weather {
+          order: 3; flex: 1.2; align-self: stretch;
+          margin-left: 0; margin-top: 0;
+          display: flex; flex-direction: column;
+          justify-content: center; align-items: center;
+          text-align: center;
+        }
         .wx-place, .wx-cond { justify-content: center; }
-        .wx-place { font-size: 2.1vh; }
-        .wx-temp { font-size: 6.8vh; }
-        .wx-cond { font-size: 2.4vh; }
-        .wx-hl { font-size: 2vh; }
-        .wx-note { font-size: 1.4vh; margin-top: 0.3em; min-height: 0; }
-        .cal-block { order: 4; margin-top: 0.8vh; }
-        .cal-month { text-align: center; font-size: 1.4vh; margin-bottom: 0.4vh; }
-        .cal { width: min(80vw, 24rem); margin: 0 auto; row-gap: 0.1em; }
-        .cal span { font-size: 1.65vh; width: 1.8em; height: 1.8em; }
-        .controls { order: 5; margin-top: auto; padding-top: 1vh; }
+        .wx-place { font-size: 2.6vh; }
+        .wx-temp { font-size: 9.5vh; }
+        .wx-cond { font-size: 3vh; }
+        .wx-hl { font-size: 2.5vh; }
+        .wx-note { font-size: 1.6vh; margin-top: 0.3em; min-height: 0; }
+        .cal-block {
+          order: 4; flex: 1.7;
+          display: flex; flex-direction: column; justify-content: center;
+        }
+        .cal-month { text-align: center; font-size: 1.8vh; margin-bottom: 0.6vh; }
+        .cal { width: min(90vw, 27rem); margin: 0 auto; row-gap: 0.15em; }
+        .cal span { font-size: 1.9vh; width: 1.9em; height: 1.9em; }
+        .controls { order: 5; margin-top: 0; padding-top: 1vh; }
+        .controls button { font-size: 1.9vh; padding: 0.9vh 2.2vh; }
       }
       @media (orientation: portrait) and (max-height: 640px) {
-        .daynum { font-size: 8vh; }
-        .d-time { font-size: 10.5vh; }
-        .wx-temp { font-size: 6vh; }
-        .cal span { font-size: 1.5vh; }
+        .daynum { font-size: 9.5vh; }
+        .d-time { font-size: min(13vh, 33cqw); }
+        .wx-temp { font-size: 8vh; }
+        .cal span { font-size: 1.75vh; }
+      }
+      /* Short landscape windows (a phone held sideways): pull the
+         vh-driven sizes back so the columns still fit the height. */
+      @media (orientation: landscape) and (max-height: 500px) {
+        .daynum { font-size: min(24vh, 20vw); }
+        .cal span { font-size: min(3vh, 2.4vw); }
+        .d-time { font-size: min(23vh, 13.5vw); }
+        .wx-temp { font-size: min(16vh, 12vw); }
       }
     </style>
   </head>
