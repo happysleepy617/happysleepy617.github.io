@@ -34,6 +34,13 @@
       }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
+      html {
+        /* Paint the root canvas sage as well: in iOS standalone (Home Screen)
+           mode the strip beside the Dynamic Island / status rail is painted
+           with the root element's background, which is white by default. */
+        background-color: #cfe0c3;
+        background: radial-gradient(120% 120% at 50% 40%, var(--bg) 55%, var(--bg-edge) 100%);
+      }
       body {
         margin: 0;
         font-family: "Archivo", "Helvetica Neue", system-ui, -apple-system, sans-serif;
