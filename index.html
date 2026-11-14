@@ -26,8 +26,6 @@
         --ink-faint: #7d9a87;
         --today-bg: #f1f6e7;
         --today-ink: #173d2c;
-        --hand: #173d2c;
-        --second: #476b58;
         --btn-bg: rgba(23, 61, 44, 0.08);
         --btn-bg-on: #173d2c;
         --btn-ink-on: #e6f0dd;
@@ -145,16 +143,8 @@
         min-height: 0;
         padding: 1vh 0;
       }
-      .clock-wrap {
-        width: min(40vh, 34vw);
-        aspect-ratio: 1;
-        flex: none;
-      }
-      .clock-wrap svg { width: 100%; height: 100%; display: block; }
-
-      /* ---------- Digital time: large readout under the analogue face.
-         Three display modes, switched by the Clock button and held in
-         memory only: "both" (default), "digital", "analogue". ---------- */
+      /* ---------- Digital time: the only clock — a large readout in
+         the top-right quadrant, sized to fill it. ---------- */
       .clock-block {
         display: flex;
         flex-direction: column;
@@ -164,42 +154,29 @@
       .digital {
         text-align: center;
         line-height: 0.95;
-        margin-top: 1.4vh;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
       }
       .d-time {
-        font-size: clamp(3.6rem, 9.5vw, 6.8rem);
+        font-size: clamp(4.6rem, 12vw, 9.5rem);
         font-weight: 900;
         letter-spacing: -0.03em;
         color: var(--ink);
       }
       .d-sec {
-        font-size: clamp(1.5rem, 4vw, 2.8rem);
+        font-size: clamp(1.9rem, 5vw, 3.8rem);
         font-weight: 800;
         color: var(--ink-soft);
         letter-spacing: -0.01em;
       }
       .d-ampm {
-        font-size: clamp(1.1rem, 2.8vw, 2rem);
+        font-size: clamp(1.3rem, 3.4vw, 2.6rem);
         font-weight: 800;
         color: var(--ink-soft);
         letter-spacing: 0.06em;
         margin-left: 0.35em;
         text-transform: uppercase;
       }
-      /* Both: shrink the analogue face so the large digital readout fits
-         in the same top-right quadrant without pushing weather off. */
-      .stage[data-clock-mode="both"] .clock-wrap { width: min(27vh, 23vw); }
-      /* Digital only: no face, the readout becomes the whole clock —
-         as large as the quadrant allows. */
-      .stage[data-clock-mode="digital"] .clock-wrap { display: none; }
-      .stage[data-clock-mode="digital"] .digital { margin-top: 0; }
-      .stage[data-clock-mode="digital"] .d-time { font-size: clamp(4.6rem, 12vw, 9.5rem); }
-      .stage[data-clock-mode="digital"] .d-sec { font-size: clamp(1.9rem, 5vw, 3.8rem); }
-      .stage[data-clock-mode="digital"] .d-ampm { font-size: clamp(1.3rem, 3.4vw, 2.6rem); }
-      /* Analogue only: original photo layout. */
-      .stage[data-clock-mode="analogue"] .digital { display: none; }
       .weather {
         align-self: flex-start;
         margin-left: 9%;
@@ -282,17 +259,10 @@
         .dow-month { font-size: 2.9vh; }
         .daynum { font-size: 8.8vh; margin-top: 0.3vh; }
         .clock-block { order: 2; align-self: center; margin-top: 0.8vh; }
-        .clock-wrap { width: min(25vh, 58vw); }
-        .stage[data-clock-mode="both"] .clock-wrap { width: min(18.5vh, 44vw); }
-        .digital { margin-top: 0.7vh; }
-        .d-time { font-size: 8.6vh; }
-        .d-sec { font-size: 3.6vh; }
-        .d-ampm { font-size: 2.6vh; }
-        .stage[data-clock-mode="digital"] .digital { margin-top: 0.4vh; }
-        .stage[data-clock-mode="digital"] .d-time { font-size: 12vh; }
-        .stage[data-clock-mode="digital"] .d-sec { font-size: 5vh; }
-        .stage[data-clock-mode="digital"] .d-ampm { font-size: 3.4vh; }
-        .stage[data-clock-mode="analogue"] .daynum { font-size: 10.5vh; }
+        .digital { margin-top: 0.4vh; }
+        .d-time { font-size: 12vh; }
+        .d-sec { font-size: 5vh; }
+        .d-ampm { font-size: 3.4vh; }
         .weather { order: 3; align-self: center; margin-left: 0; text-align: center; margin-top: 0.6vh; }
         .wx-place, .wx-cond { justify-content: center; }
         .wx-place { font-size: 2.1vh; }
@@ -308,17 +278,14 @@
       }
       @media (orientation: portrait) and (max-height: 640px) {
         .daynum { font-size: 8vh; }
-        .stage[data-clock-mode="both"] .clock-wrap { width: min(16vh, 40vw); }
-        .clock-wrap { width: min(23vh, 52vw); }
-        .d-time { font-size: 7.6vh; }
-        .stage[data-clock-mode="digital"] .d-time { font-size: 10.5vh; }
+        .d-time { font-size: 10.5vh; }
         .wx-temp { font-size: 6vh; }
         .cal span { font-size: 1.5vh; }
       }
     </style>
   </head>
   <body>
-    <main class="stage" id="stage" data-clock-mode="both">
+    <main class="stage" id="stage">
       <section class="left" aria-label="Date and calendar">
         <div class="date-block">
           <div class="dow-month" id="dowMonth">—</div>
@@ -332,16 +299,6 @@
 
       <section class="right" aria-label="Clock and weather">
         <div class="clock-block">
-          <div class="clock-wrap">
-            <svg viewBox="0 0 200 200" role="img" aria-label="Analogue clock">
-              <g id="ticks"></g>
-              <g id="numerals" font-family="Archivo, Helvetica Neue, sans-serif" font-weight="700" text-anchor="middle" dominant-baseline="central"></g>
-              <line id="handH" x1="100" y1="108" x2="100" y2="58" stroke-width="7" stroke-linecap="round" />
-              <line id="handM" x1="100" y1="110" x2="100" y2="38" stroke-width="5" stroke-linecap="round" />
-              <line id="handS" x1="100" y1="116" x2="100" y2="30" stroke-width="2" stroke-linecap="round" />
-              <circle cx="100" cy="100" r="5.5" id="hub" />
-            </svg>
-          </div>
           <div class="digital" role="timer" aria-label="Digital clock">
             <span class="d-time" id="digTime">--:--</span><span class="d-sec" id="digSec">:--</span><span class="d-ampm" id="digAmpm"></span>
           </div>
@@ -359,7 +316,6 @@
       </section>
 
       <nav class="controls" aria-label="Clock controls">
-        <button id="modeBtn" type="button">Clock: Both</button>
         <button id="wakeBtn" type="button" aria-pressed="false">Keep screen on</button>
         <button id="locBtn" type="button">↻ Weather &amp; location</button>
         <button id="fsBtn" type="button">Full screen</button>
@@ -377,43 +333,7 @@
         var el = function (id) { return document.getElementById(id); };
         var dowMonth = el("dowMonth"), dayNum = el("dayNum"),
             calMonth = el("calMonth"), cal = el("cal");
-        var handH = el("handH"), handM = el("handM"), handS = el("handS");
         var digTime = el("digTime"), digSec = el("digSec"), digAmpm = el("digAmpm");
-
-        /* ---------- Clock face ---------- */
-        (function buildFace() {
-          var ticks = el("ticks"), nums = el("numerals");
-          var ink = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#173d2c";
-          var faint = getComputedStyle(document.documentElement).getPropertyValue("--ink-faint").trim() || "#7d9a87";
-          var NS = "http://www.w3.org/2000/svg";
-          for (var i = 0; i < 60; i++) {
-            var hour = i % 5 === 0;
-            var a = i * 6 * Math.PI / 180;
-            var r1 = hour ? 84 : 89, r2 = 94;
-            var ln = document.createElementNS(NS, "line");
-            ln.setAttribute("x1", 100 + r1 * Math.sin(a)); ln.setAttribute("y1", 100 - r1 * Math.cos(a));
-            ln.setAttribute("x2", 100 + r2 * Math.sin(a)); ln.setAttribute("y2", 100 - r2 * Math.cos(a));
-            ln.setAttribute("stroke", hour ? ink : faint);
-            ln.setAttribute("stroke-width", hour ? 3 : 1.4);
-            ln.setAttribute("stroke-linecap", "round");
-            ticks.appendChild(ln);
-            if (hour) {
-              var n = i / 5 === 0 ? 12 : i / 5;
-              var t = document.createElementNS(NS, "text");
-              var rn = 70;
-              t.setAttribute("x", 100 + rn * Math.sin(a));
-              t.setAttribute("y", 100 - rn * Math.cos(a) + 1);
-              t.setAttribute("font-size", "17");
-              t.setAttribute("fill", ink);
-              t.textContent = n;
-              nums.appendChild(t);
-            }
-          }
-          var hand = getComputedStyle(document.documentElement).getPropertyValue("--hand").trim() || ink;
-          var sec = getComputedStyle(document.documentElement).getPropertyValue("--second").trim() || "#476b58";
-          handH.setAttribute("stroke", hand); handM.setAttribute("stroke", hand);
-          handS.setAttribute("stroke", sec); el("hub").setAttribute("fill", sec);
-        })();
 
         /* ---------- Date + calendar ---------- */
         var lastDateKey = "";
@@ -436,7 +356,7 @@
           cal.innerHTML = html;
         }
 
-        /* ---------- Clock hands + digital readout ---------- */
+        /* ---------- Digital readout ---------- */
         var lastDigKey = "";
         function renderDigital(now) {
           var sec = now.getSeconds();
@@ -454,34 +374,9 @@
           var now = new Date();
           renderDate(now);
           renderDigital(now);
-          var ms = now.getMilliseconds();
-          var s = now.getSeconds() + ms / 1000;
-          var m = now.getMinutes() + s / 60;
-          var h = (now.getHours() % 12) + m / 60;
-          handH.setAttribute("transform", "rotate(" + (h * 30) + " 100 100)");
-          handM.setAttribute("transform", "rotate(" + (m * 6) + " 100 100)");
-          handS.setAttribute("transform", "rotate(" + (s * 6) + " 100 100)");
           requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
-
-        /* ---------- Clock display mode: Both → Digital → Analogue ----------
-           In-memory only; defaults to Both on every open so the large
-           digital readout is always there unless switched away. */
-        (function () {
-          var stage = el("stage"), modeBtn = el("modeBtn");
-          var modes = [
-            { id: "both", label: "Clock: Both" },
-            { id: "digital", label: "Clock: Digital" },
-            { id: "analogue", label: "Clock: Analogue" }
-          ];
-          var idx = 0;
-          modeBtn.addEventListener("click", function () {
-            idx = (idx + 1) % modes.length;
-            stage.setAttribute("data-clock-mode", modes[idx].id);
-            modeBtn.textContent = modes[idx].label;
-          });
-        })();
 
         /* ---------- Weather (Open-Meteo, no key needed) ----------
            Nothing is allowed to block the weather: geolocation gets a
