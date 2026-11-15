@@ -351,6 +351,10 @@
         justify-content: center;
         max-width: none;
         gap: 0;
+        /* Near-zero side padding in night mode: every spare pixel of
+           width goes to the readout, which is auto-fitted to one line. */
+        padding-left: max(1vw, env(safe-area-inset-left));
+        padding-right: max(1vw, env(safe-area-inset-right));
       }
       .night .right {
         display: flex;
@@ -367,12 +371,14 @@
         justify-content: center;
         animation: night-drift 240s ease-in-out infinite alternate;
       }
-      /* Sizes are in cqw of the full-width clock block, so the whole
-         time line (hours, seconds, AM/PM) scales to span the screen
-         width in either orientation without overflowing it. */
-      .night .d-time { font-size: min(54vh, 25cqw); }
-      .night .d-sec { font-size: min(21vh, 9.6cqw); }
-      .night .d-ampm { font-size: min(13vh, 6.2cqw); }
+      /* Base sizes are in cqw of the full-width clock block and are set
+         deliberately large; fitNightClock() in the script then scales
+         the whole line up or down so it always fills the screen width
+         on a single line without ever overflowing it. */
+      .night .digital { transform-origin: center center; }
+      .night .d-time { font-size: min(62vh, 29cqw); }
+      .night .d-sec { font-size: min(24vh, 11cqw); }
+      .night .d-ampm { font-size: min(15vh, 7cqw); }
       /* A few pixels of slow drift over minutes, so a static bright
          readout does not sit on the same OLED pixels all night. */
       @keyframes night-drift {
@@ -400,9 +406,9 @@
       .night .controls button { flex: none; padding: 0.6rem 1.15rem; }
       .night .controls button:not(#nightBtn) { display: none; }
       @media (orientation: portrait) {
-        .night .d-time { font-size: min(20vh, 30cqw); }
-        .night .d-sec { font-size: min(8vh, 11.5cqw); }
-        .night .d-ampm { font-size: min(5.5vh, 7.5cqw); }
+        .night .d-time { font-size: min(24vh, 34cqw); }
+        .night .d-sec { font-size: min(9.5vh, 13cqw); }
+        .night .d-ampm { font-size: min(6.5vh, 8.5cqw); }
       }
     </style>
   </head>
@@ -456,6 +462,8 @@
         var dowMonth = el("dowMonth"), dayNum = el("dayNum"),
             calMonth = el("calMonth"), cal = el("cal");
         var digTime = el("digTime"), digSec = el("digSec"), digAmpm = el("digAmpm");
+        var digital = document.querySelector(".digital"),
+            clockBlock = document.querySelector(".clock-block");
 
         /* ---------- Date + calendar ---------- */
         var lastDateKey = "";
@@ -491,7 +499,37 @@
           digTime.textContent = h12 + ":" + pad(now.getMinutes());
           digSec.textContent = ":" + pad(sec);
           digAmpm.textContent = h24 < 12 ? "AM" : "PM";
+          fitNightClock();
         }
+
+        /* ---------- Night-mode auto-fit ----------
+           The night readout must be as big as possible yet never wrap
+           or overflow: measure the rendered line at scale 1, then scale
+           the whole line so it fills the available width (and stays
+           inside the available height). Runs whenever the digits change
+           (a two-digit hour is wider than a one-digit one), on resize,
+           and when night mode is switched on. */
+        function fitNightClock() {
+          if (!document.documentElement.classList.contains("night")) return;
+          digital.style.transform = "none";
+          /* Measure the text itself, not the box: the readout div can be
+             wider than the glyphs on some layouts. */
+          var range = document.createRange();
+          range.selectNodeContents(digital);
+          var rect = range.getBoundingClientRect();
+          var w = rect.width, h = rect.height;
+          if (!w || !h) return;
+          var availW = clockBlock.clientWidth * 0.99;
+          var availH = window.innerHeight * 0.82;
+          var scale = Math.min(availW / w, availH / h);
+          if (scale > 0 && isFinite(scale)) {
+            digital.style.transform = "scale(" + scale + ")";
+          }
+        }
+        window.addEventListener("resize", fitNightClock);
+        window.addEventListener("orientationchange", function () {
+          setTimeout(fitNightClock, 60);
+        });
         function tick() {
           var now = new Date();
           renderDate(now);
@@ -701,6 +739,14 @@
           if (themeMeta) themeMeta.setAttribute("content", on ? "#070a07" : "#cfe0c3");
           if (schemeMeta) schemeMeta.setAttribute("content", on ? "dark" : "light");
           if (on && !wakeLock) requestWake();
+          if (on) {
+            /* Fit after the night layout applies, and again once the
+               webfont has settled so the measure is exact. */
+            requestAnimationFrame(fitNightClock);
+            setTimeout(fitNightClock, 350);
+          } else {
+            digital.style.transform = "";
+          }
         }
         nightBtn.addEventListener("click", function () {
           setNight(!document.documentElement.classList.contains("night"));
