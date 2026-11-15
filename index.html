@@ -220,24 +220,33 @@
       }
 
       /* ---------- Controls ---------- */
+      /* One line in every orientation, outer cover screen included:
+         the row never wraps, and as the viewport narrows the font,
+         padding and gap all shrink in proportion to its width, so the
+         three pills always fit side by side. */
       .controls {
         grid-column: 1 / -1;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 0.6rem;
-        flex-wrap: wrap;
+        gap: clamp(0.3rem, 1.5vw, 0.6rem);
+        flex-wrap: nowrap;
         padding-top: 1vh;
+        width: 100%;
       }
       .controls button {
         border: 0;
         border-radius: 999px;
         background: var(--btn-bg);
         color: var(--ink);
-        font-size: 0.92rem;
+        font-size: min(0.92rem, 3.4vw);
         font-weight: 600;
-        padding: 0.6rem 1.15rem;
+        padding: 0.6rem clamp(0.45rem, 2.6vw, 1.15rem);
         cursor: pointer;
+        flex: 0 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        text-align: center;
       }
       .controls button[aria-pressed="true"] {
         background: var(--btn-bg-on);
@@ -298,7 +307,7 @@
         .cal { width: min(90vw, 27rem); margin: 0 auto; row-gap: 0.15em; }
         .cal span { font-size: 1.9vh; width: 1.9em; height: 1.9em; }
         .controls { order: 5; margin-top: 0; padding-top: 1vh; }
-        .controls button { font-size: 1.9vh; padding: 0.9vh 2.2vh; }
+        .controls button { font-size: min(0.95rem, 3.3vw); padding: 0.9vh clamp(0.4rem, 2.2vw, 0.9rem); letter-spacing: -0.01em; }
       }
       @media (orientation: portrait) and (max-height: 640px) {
         .daynum { font-size: 9.5vh; }
@@ -313,6 +322,87 @@
         .cal span { font-size: min(3vh, 2.4vw); }
         .d-time { font-size: min(23vh, 13.5vw); }
         .wx-temp { font-size: min(16vh, 12vw); }
+      }
+
+      /* ---------- Night mode ----------
+         Toggled on <html>: the palette variables flip to a near-black
+         face with dim sage digits (easy on the eyes in a dark room and
+         on OLED panels), and everything except the digital readout is
+         removed. The readout is re-centred and scaled up until it spans
+         the full width of the screen. Only the Night button survives,
+         as a small dim pill floating at the bottom; it brightens on
+         hover / focus so it can be found without lighting up the room. */
+      :root.night {
+        color-scheme: dark;
+        --bg: #070a07;
+        --bg-edge: #030503;
+        --ink: #a9c4a2;
+        --ink-soft: #61755f;
+        --ink-faint: #43543f;
+        --btn-bg: rgba(169, 196, 162, 0.12);
+        --btn-bg-on: #a9c4a2;
+        --btn-ink-on: #0a0f0a;
+      }
+      .night .left, .night .weather { display: none !important; }
+      .night .stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: none;
+        gap: 0;
+      }
+      .night .right {
+        display: flex;
+        flex: 1 1 auto;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        min-height: 0;
+      }
+      .night .clock-block {
+        width: 100%;
+        container-type: inline-size;
+        justify-content: center;
+        animation: night-drift 240s ease-in-out infinite alternate;
+      }
+      /* Sizes are in cqw of the full-width clock block, so the whole
+         time line (hours, seconds, AM/PM) scales to span the screen
+         width in either orientation without overflowing it. */
+      .night .d-time { font-size: min(54vh, 25cqw); }
+      .night .d-sec { font-size: min(21vh, 9.6cqw); }
+      .night .d-ampm { font-size: min(13vh, 6.2cqw); }
+      /* A few pixels of slow drift over minutes, so a static bright
+         readout does not sit on the same OLED pixels all night. */
+      @keyframes night-drift {
+        from { transform: translate(0, 0); }
+        25% { transform: translate(0.5vw, 0.35vh); }
+        50% { transform: translate(0, 0.7vh); }
+        75% { transform: translate(-0.5vw, 0.35vh); }
+        to { transform: translate(0, 0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .night .clock-block { animation: none; }
+      }
+      .night .controls {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: max(2.5vh, env(safe-area-inset-bottom));
+        padding: 0;
+        z-index: 10;
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+      }
+      .night .controls:hover, .night .controls:focus-within { opacity: 1; }
+      .night .controls { width: auto; max-width: none; }
+      .night .controls button { flex: none; padding: 0.6rem 1.15rem; }
+      .night .controls button:not(#nightBtn) { display: none; }
+      @media (orientation: portrait) {
+        .night .d-time { font-size: min(20vh, 30cqw); }
+        .night .d-sec { font-size: min(8vh, 11.5cqw); }
+        .night .d-ampm { font-size: min(5.5vh, 7.5cqw); }
       }
     </style>
   </head>
@@ -348,9 +438,9 @@
       </section>
 
       <nav class="controls" aria-label="Clock controls">
+        <button id="nightBtn" type="button" aria-pressed="false">Night mode</button>
         <button id="wakeBtn" type="button" aria-pressed="false">Keep screen on</button>
         <button id="locBtn" type="button">↻ Weather &amp; location</button>
-        <button id="fsBtn" type="button">Full screen</button>
       </nav>
     </main>
 
@@ -597,12 +687,23 @@
           if (document.visibilityState === "visible" && !wakeLock) requestWake();
         });
 
-        /* ---------- Full screen ---------- */
-        el("fsBtn").addEventListener("click", function () {
-          if (document.fullscreenElement) { document.exitFullscreen(); }
-          else if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(function () {});
-          }
+        /* ---------- Night mode ----------
+           In-memory only: the clock always starts in day mode. Turning
+           night mode on also re-requests the wake lock, since a bedside
+           clock is the main case for keeping the screen on. */
+        var nightBtn = el("nightBtn");
+        var themeMeta = document.querySelector('meta[name="theme-color"]');
+        var schemeMeta = document.querySelector('meta[name="color-scheme"]');
+        function setNight(on) {
+          document.documentElement.classList.toggle("night", on);
+          nightBtn.setAttribute("aria-pressed", on ? "true" : "false");
+          nightBtn.textContent = on ? "Exit night mode" : "Night mode";
+          if (themeMeta) themeMeta.setAttribute("content", on ? "#070a07" : "#cfe0c3");
+          if (schemeMeta) schemeMeta.setAttribute("content", on ? "dark" : "light");
+          if (on && !wakeLock) requestWake();
+        }
+        nightBtn.addEventListener("click", function () {
+          setNight(!document.documentElement.classList.contains("night"));
         });
       })();
     </script>
